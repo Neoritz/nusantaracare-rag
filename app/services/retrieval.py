@@ -31,9 +31,19 @@ print("=" * 60)
 print("MEMUAT MODEL EMBEDDING")
 print("=" * 60)
 
-model = SentenceTransformer(
-    MODEL_NAME
-)
+_model = None
+
+
+def get_model():
+    global _model
+
+    if _model is None:
+        _model = SentenceTransformer(
+            MODEL_NAME,
+            device="cpu"
+        )
+
+    return _model
 
 print("Model berhasil dimuat.")
 
@@ -83,6 +93,7 @@ def search(
     min_score: float = 0.50
 ):
 
+    model = get_model()
     # ======================================
     # Embedding query
     # ======================================
