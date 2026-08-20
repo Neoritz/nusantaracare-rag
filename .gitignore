@@ -1,0 +1,15 @@
+# Virtual environment
+.venv/
+
+# Environment variables
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# FAISS / vector store
+data/vector_store/
+
+# Model cache
+.cache/
