@@ -9,7 +9,7 @@ __pycache__/
 *.pyc
 
 # FAISS / vector store
-data/vector_store/
+# data/vector_store/
 
 # Model cache
 .cache/
