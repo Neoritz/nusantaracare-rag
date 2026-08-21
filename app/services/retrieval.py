@@ -11,7 +11,7 @@ from sentence_transformers import SentenceTransformer
 # KONFIGURASI
 # ==========================================
 
-MODEL_NAME = "all-MiniLM-L6-v2"
+MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 
 VECTOR_STORE_PATH = Path(
     "data/vector_store"
@@ -31,19 +31,9 @@ print("=" * 60)
 print("MEMUAT MODEL EMBEDDING")
 print("=" * 60)
 
-_model = None
-
-
-def get_model():
-    global _model
-
-    if _model is None:
-        _model = SentenceTransformer(
-            MODEL_NAME,
-            device="cpu"
-        )
-
-    return _model
+model = SentenceTransformer(
+    MODEL_NAME
+)
 
 print("Model berhasil dimuat.")
 
@@ -93,7 +83,6 @@ def search(
     min_score: float = 0.50
 ):
 
-    model = get_model()
     # ======================================
     # Embedding query
     # ======================================

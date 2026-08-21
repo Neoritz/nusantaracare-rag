@@ -3,21 +3,18 @@ import json
 
 import faiss
 import numpy as np
-
 from sentence_transformers import SentenceTransformer
 
-from rag import load_knowledge_base
+from app.services.rag import load_knowledge_base
 
 
 # ==========================================
 # KONFIGURASI
 # ==========================================
 
-MODEL_NAME = "all-MiniLM-L6-v2"
+MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 
-VECTOR_STORE_PATH = Path(
-    "data/vector_store"
-)
+VECTOR_STORE_PATH = Path("data/vector_store")
 
 INDEX_PATH = VECTOR_STORE_PATH / "index.faiss"
 METADATA_PATH = VECTOR_STORE_PATH / "metadata.json"
@@ -43,7 +40,7 @@ def create_vector_store():
         )
 
     # ======================================
-    # Filter hanya dokumen aktif
+    # FILTER DOKUMEN AKTIF
     # ======================================
 
     active_chunks = [
@@ -53,8 +50,7 @@ def create_vector_store():
     ]
 
     print(
-        f"Chunk aktif  : "
-        f"{len(active_chunks)}"
+        f"Chunk aktif  : {len(active_chunks)}"
     )
 
     if not active_chunks:
@@ -80,7 +76,7 @@ def create_vector_store():
     print("Model berhasil dimuat.")
 
     # ======================================
-    # SIAPKAN TEXT
+    # SIAPKAN TEXT UNTUK EMBEDDING
     # ======================================
 
     texts = []
@@ -88,8 +84,7 @@ def create_vector_store():
     for chunk in active_chunks:
 
         text_for_embedding = (
-            f"Section: "
-            f"{chunk['section_title']}\n"
+            f"Section: {chunk['section_title']}\n"
         )
 
         if chunk["subsection_title"]:
@@ -145,7 +140,7 @@ def create_vector_store():
     )
 
     # ======================================
-    # BUAT FAISS INDEX
+    # MEMBUAT FAISS INDEX
     # ======================================
 
     print("\n")
@@ -169,7 +164,7 @@ def create_vector_store():
     )
 
     # ======================================
-    # BUAT FOLDER
+    # BUAT FOLDER VECTOR STORE
     # ======================================
 
     VECTOR_STORE_PATH.mkdir(
@@ -178,7 +173,7 @@ def create_vector_store():
     )
 
     # ======================================
-    # SIMPAN FAISS
+    # SIMPAN FAISS INDEX
     # ======================================
 
     faiss.write_index(
@@ -202,6 +197,10 @@ def create_vector_store():
             ensure_ascii=False,
             indent=2
         )
+
+    # ======================================
+    # SELESAI
+    # ======================================
 
     print("\n")
     print("=" * 60)
