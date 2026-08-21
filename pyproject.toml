@@ -14,6 +14,7 @@ dependencies = [
     "python-dotenv",
     "groq",
     "sentence-transformers",
+    "onnxruntime",
     "faiss-cpu",
     "numpy",
     "pydantic"

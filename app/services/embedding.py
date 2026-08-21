@@ -70,7 +70,11 @@ def create_vector_store():
     print(f"Model : {MODEL_NAME}")
 
     model = SentenceTransformer(
-        MODEL_NAME
+        MODEL_NAME,
+        backend="onnx",
+        model_kwargs={
+            "file_name": "onnx/model_quint8_avx2.onnx"
+        }
     )
 
     print("Model berhasil dimuat.")
