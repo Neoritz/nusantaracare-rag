@@ -3,7 +3,7 @@ import json
 
 import faiss
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 
 from app.services.rag import load_knowledge_base
 
@@ -12,7 +12,7 @@ from app.services.rag import load_knowledge_base
 # KONFIGURASI
 # ==========================================
 
-MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 VECTOR_STORE_PATH = Path("data/vector_store")
 
@@ -69,12 +69,8 @@ def create_vector_store():
 
     print(f"Model : {MODEL_NAME}")
 
-    model = SentenceTransformer(
-        MODEL_NAME,
-        backend="onnx",
-        model_kwargs={
-            "file_name": "onnx/model_quint8_avx2.onnx"
-        }
+    model = TextEmbedding(
+        model_name=MODEL_NAME
     )
 
     print("Model berhasil dimuat.")
@@ -115,10 +111,10 @@ def create_vector_store():
     print("MEMBUAT EMBEDDING")
     print("=" * 60)
 
-    embeddings = model.encode(
-        texts,
-        show_progress_bar=True,
-        convert_to_numpy=True
+    embeddings = np.array(
+        list(
+            model.embed(texts)
+        )
     )
 
     # ======================================

@@ -4,14 +4,14 @@ import json
 import faiss
 import numpy as np
 
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 
 
 # ==========================================
 # KONFIGURASI
 # ==========================================
 
-MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 VECTOR_STORE_PATH = Path(
     "data/vector_store"
@@ -36,12 +36,10 @@ def get_model():
 
     if model is None:
 
-        print("=" * 60)
-        print("MEMUAT MODEL EMBEDDING")
-        print("=" * 60)
+        print("Memuat model embedding...")
 
-        model = SentenceTransformer(
-            MODEL_NAME
+        model = TextEmbedding(
+            model_name=MODEL_NAME
         )
 
         print("Model berhasil dimuat.")
@@ -100,12 +98,11 @@ def search(
 
     model_instance = get_model()
 
-    query_embedding = model_instance.encode(
-        [query],
-        convert_to_numpy=True
+    query_embedding = np.array(
+    list(
+        model_instance.embed([query])
     )
-
-    query_embedding = query_embedding.astype(
+    ).astype(
         "float32"
     )
 

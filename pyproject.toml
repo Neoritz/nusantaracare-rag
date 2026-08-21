@@ -13,8 +13,7 @@ dependencies = [
     "uvicorn",
     "python-dotenv",
     "groq",
-    "sentence-transformers",
-    "onnxruntime",
+    "fastembed",
     "faiss-cpu",
     "numpy",
     "pydantic"
