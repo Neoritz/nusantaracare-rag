@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import re
 
 import faiss
 import numpy as np
@@ -21,7 +22,7 @@ INDEX_PATH = VECTOR_STORE_PATH / "index.faiss"
 METADATA_PATH = VECTOR_STORE_PATH / "metadata.json"
 
 TOP_K = 3
-
+SEMANTIC_TOP_K = 47
 
 # ==========================================
 # MODEL EMBEDDING
@@ -81,6 +82,65 @@ print(
     f"Jumlah metadata : {len(metadata)}"
 )
 
+# ==========================================
+# KEYWORD SCORE
+# ==========================================
+
+def keyword_score(
+    query: str,
+    text: str
+):
+    
+    stopwords = {
+        "bagaimana",
+        "apa",
+        "apakah",
+        "yang",
+        "dan",
+        "atau",
+        "di",
+        "ke",
+        "dari",
+        "untuk",
+        "dengan",
+        "saya",
+        "anda",
+        "cara",
+        "bisa",
+        "dapat",
+        "ini",
+        "itu",
+        "nya"
+    }
+
+    query_words = set(
+        word
+        for word in re.findall(
+            r"\b\w+\b",
+            query.lower()
+        )
+        if word not in stopwords
+    )
+    
+    text_words = set(
+        re.findall(
+            r"\b\w+\b",
+            text.lower()
+        )
+    )
+    
+    if not query_words:
+        return 0.0
+
+    matched_words = query_words.intersection(
+        text_words
+    )
+
+    return (
+        len(matched_words)
+        /
+        len(query_words)
+    )
 
 # ==========================================
 # RETRIEVAL
@@ -120,10 +180,14 @@ def search(
 
     scores, indices = index.search(
         query_embedding,
-        top_k
+        SEMANTIC_TOP_K
     )
 
-    results = []
+    candidates = []
+    
+    # ======================================
+    # HYBRID SCORING
+    # ======================================
 
     for score, idx in zip(
         scores[0],
@@ -139,13 +203,67 @@ def search(
         if not chunk.get("is_active", False):
             continue
 
-        # Filter berdasarkan similarity
-        if float(score) < min_score:
+        semantic_score = float(
+            score
+        )
+        
+        keyword = keyword_score(
+            query,
+            chunk["text"]
+        )
+        
+        # ==================================
+        # HYBRID SCORE
+        # ==================================
+
+        hybrid_score = (
+            0.60 * semantic_score
+            +
+            0.40 * keyword
+        )
+
+        chunk["semantic_score"] = (
+            semantic_score
+        )
+
+        chunk["keyword_score"] = (
+            keyword
+        )
+
+        chunk["score"] = (
+            hybrid_score
+        )
+
+        candidates.append(
+            chunk
+        )
+        
+    # ======================================
+    # URUTKAN BERDASARKAN HYBRID SCORE
+    # ======================================
+
+    candidates.sort(
+        key=lambda x: x["score"],
+        reverse=True
+    )
+
+    # ======================================
+    # FILTER HASIL
+    # ======================================
+
+    results = []
+
+    for chunk in candidates:
+
+        if chunk["score"] < min_score:
             continue
 
-        chunk["score"] = float(score)
+        results.append(
+            chunk
+        )
 
-        results.append(chunk)
+        if len(results) >= top_k:
+            break
 
     return results
 
@@ -241,10 +359,20 @@ if __name__ == "__main__":
             print(
                 f"Rank       : {i}"
             )
-
+            
             print(
                 f"Score      : "
                 f"{result['score']:.4f}"
+            )
+
+            print(
+                f"Semantic   : "
+                f"{result['semantic_score']:.4f}"
+            )
+
+            print(
+                f"Keyword    : "
+                f"{result['keyword_score']:.4f}"
             )
 
             print(
