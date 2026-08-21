@@ -12,7 +12,7 @@ dependencies = [
     "fastapi[standard]",
     "uvicorn",
     "python-dotenv",
-    "google-genai",
+    "groq",
     "sentence-transformers",
     "faiss-cpu",
     "numpy",

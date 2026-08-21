@@ -100,9 +100,9 @@ def search(
     # Embedding query
     # ======================================
 
-    embedding_model = get_model()
+    model_instance = get_model()
 
-    query_embedding = embedding_model.encode(
+    query_embedding = model_instance.encode(
         [query],
         convert_to_numpy=True
     )

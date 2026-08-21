@@ -2,7 +2,7 @@ import json
 import os
 
 from dotenv import load_dotenv
-from google import genai
+from groq import Groq
 
 from app.services.retrieval import search
 
@@ -13,23 +13,23 @@ from app.services.retrieval import search
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv(
-    "GEMINI_API_KEY"
+GROQ_API_KEY = os.getenv(
+    "GROQ_API_KEY"
 )
 
-if not GEMINI_API_KEY:
+if not GROQ_API_KEY:
     raise ValueError(
-        "GEMINI_API_KEY belum ditemukan. "
+        "GROQ_API_KEY belum ditemukan. "
         "Pastikan sudah dibuat di file .env"
     )
 
 
 # ==========================================
-# GEMINI CLIENT
+# GROQ CLIENT
 # ==========================================
 
-client = genai.Client(
-    api_key=GEMINI_API_KEY
+client = Groq(
+    api_key=GROQ_API_KEY
 )
 
 
@@ -40,7 +40,7 @@ client = genai.Client(
 TOP_K = 3
 MIN_SCORE = 0.50
 
-MODEL_NAME = "gemini-3.6-flash"
+MODEL_NAME = "openai/gpt-oss-20b"
 
 
 # ==========================================
@@ -211,7 +211,7 @@ def prepare_agent_input(question):
 
 
 # ==========================================
-# PANGGIL GEMINI
+# PANGGIL GROQ
 # ==========================================
 
 def ask_llm(
@@ -225,12 +225,23 @@ def ask_llm(
         context=context
     )
 
-    response = client.models.generate_content(
+    response = client.chat.completions.create(
         model=MODEL_NAME,
-        contents=prompt
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0
     )
 
-    response_text = response.text.strip()
+    response_text = (
+        response.choices[0]
+        .message
+        .content
+        .strip()
+    )
 
     return response_text
 
