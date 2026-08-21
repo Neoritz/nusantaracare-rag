@@ -24,12 +24,8 @@ TOP_K = 3
 
 
 # ==========================================
-# LOAD MODEL
+# MODEL EMBEDDING
 # ==========================================
-
-print("=" * 60)
-print("MEMUAT MODEL EMBEDDING")
-print("=" * 60)
 
 model = None
 
@@ -40,7 +36,9 @@ def get_model():
 
     if model is None:
 
-        print("Memuat model embedding...")
+        print("=" * 60)
+        print("MEMUAT MODEL EMBEDDING")
+        print("=" * 60)
 
         model = SentenceTransformer(
             MODEL_NAME
