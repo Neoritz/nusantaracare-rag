@@ -31,11 +31,24 @@ print("=" * 60)
 print("MEMUAT MODEL EMBEDDING")
 print("=" * 60)
 
-model = SentenceTransformer(
-    MODEL_NAME
-)
+model = None
 
-print("Model berhasil dimuat.")
+
+def get_model():
+
+    global model
+
+    if model is None:
+
+        print("Memuat model embedding...")
+
+        model = SentenceTransformer(
+            MODEL_NAME
+        )
+
+        print("Model berhasil dimuat.")
+
+    return model
 
 
 # ==========================================
@@ -87,7 +100,9 @@ def search(
     # Embedding query
     # ======================================
 
-    query_embedding = model.encode(
+    embedding_model = get_model()
+
+    query_embedding = embedding_model.encode(
         [query],
         convert_to_numpy=True
     )
