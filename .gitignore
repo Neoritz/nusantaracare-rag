@@ -13,3 +13,5 @@ __pycache__/
 
 # Model cache
 .cache/
+# Python package metadata
+nusantaracare_rag.egg-info/
